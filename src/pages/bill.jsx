@@ -73,6 +73,7 @@ const Bill = () => {
         userHash[order.userId]?.lastname
       })`,
       payed: order.price,
+      tip: order.tip,
       time: order.time.toDate().toString(),
     }));
     setOrders(orders);
