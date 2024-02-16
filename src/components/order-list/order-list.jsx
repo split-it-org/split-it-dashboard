@@ -8,6 +8,7 @@ const OrderList = (props) => {
           key={index}
           user={order.user}
           payed={order.payed}
+          tip={order.tip}
           time={order.time}
         />
       ))}

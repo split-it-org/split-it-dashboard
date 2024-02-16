@@ -1,6 +1,7 @@
 import { Card, Row, Col } from "react-bootstrap";
 
 const Order = (props) => {
+  const tipPercentage = (props.tip * 100) / (props.payed - props.tip);
   return (
     <Card className={`m-2`}>
       <Card.Body>
@@ -10,6 +11,9 @@ const Order = (props) => {
             <Col className="d-flex flex-column">
               <span>
                 <b>Payed:</b> {props.payed} MXN
+              </span>
+              <span>
+                <b>Tip:</b> {props.tip} MXN {`(${tipPercentage}%)`}
               </span>
               <span>
                 <b>Time:</b> {props.time}

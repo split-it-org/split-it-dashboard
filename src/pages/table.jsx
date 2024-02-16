@@ -12,37 +12,44 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 
-const Bill = () => {
-  const [billID, setBillID] = useState("");
+const Table = () => {
+  const [restaurant, setRestaurant] = useState("biznaga");
+  const [table, setTable] = useState("");
   const [items, setItems] = useState([]);
   const [orders, setOrders] = useState([]);
 
   async function fetchData() {
     try {
-      const billDocRef = doc(db, "bill", billID);
-      const billDocSnap = await getDoc(billDocRef);
-      let userHash = {};
-      if (billDocSnap.exists()) {
-        const billData = billDocSnap.data();
-        const userIds = billData.users;
-        if (userIds?.length) {
-          let usersData = await Promise.all(
-            userIds.map(async (id) => {
-              const userDocRef = doc(db, "user", id);
-              const userDocSnap = await getDoc(userDocRef);
-              if (userDocSnap.exists()) {
-                return { id, ...userDocSnap.data() };
-              }
-            })
-          );
-          usersData = usersData.filter(Boolean);
-          userHash = usersData.reduce((acc, curr) => {
-            return { ...acc, [curr.id]: curr };
-          }, {});
+      const restaurantDocRef = doc(db, "table", `${restaurant}_${table}`);
+      const restaurantDocSnap = await getDoc(restaurantDocRef);
+      if (restaurantDocSnap.exists()) {
+        const restaurantData = restaurantDocSnap.data();
+        const billID = restaurantData.billID;
+        const billDocRef = doc(db, "bill", billID);
+        const billDocSnap = await getDoc(billDocRef);
+        let userHash = {};
+        if (billDocSnap.exists()) {
+          const billData = billDocSnap.data();
+          const userIds = billData.users;
+          if (userIds?.length) {
+            let usersData = await Promise.all(
+              userIds.map(async (id) => {
+                const userDocRef = doc(db, "user", id);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                  return { id, ...userDocSnap.data() };
+                }
+              })
+            );
+            usersData = usersData.filter(Boolean);
+            userHash = usersData.reduce((acc, curr) => {
+              return { ...acc, [curr.id]: curr };
+            }, {});
+          }
+          await fetchItems(billData, userHash);
         }
-        await fetchItems(billData, userHash);
+        await fetchOrders(billID, userHash);
       }
-      await fetchOrders(billID, userHash);
     } catch (error) {
       console.error(error.message);
     }
@@ -73,6 +80,7 @@ const Bill = () => {
         userHash[order.userId]?.lastname
       })`,
       payed: order.price,
+      tip: order.tip,
       time: order.time.toDate().toString(),
     }));
     setOrders(orders);
@@ -83,9 +91,15 @@ const Bill = () => {
       <h3>Select table</h3>
       <div className="my-4 d-flex gap-3">
         <Form.Control
-          placeholder="Bill"
-          value={billID}
-          onChange={(evt) => setBillID(evt.target.value)}
+          placeholder="Restaurant"
+          value={restaurant}
+          onChange={(evt) => setRestaurant(evt.target.value)}
+        />
+        <Form.Control
+          placeholder="Table"
+          type="number"
+          value={table}
+          onChange={(evt) => setTable(evt.target.value)}
         />
         <Button onClick={fetchData}>Search</Button>
       </div>
@@ -101,4 +115,5 @@ const Bill = () => {
     </Container>
   );
 };
-export default Bill;
+
+export default Table;

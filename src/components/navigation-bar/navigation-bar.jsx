@@ -13,12 +13,12 @@ const NavigationBar = () => {
           <Nav className="me-auto">
             <Nav.Link>
               <Link className={styles.link} to="/">
-                Check Bill
+                Check Table
               </Link>
             </Nav.Link>
             <Nav.Link>
-              <Link className={styles.link} to="/history">
-                History
+              <Link className={styles.link} to="/bill">
+                Check Bill
               </Link>
             </Nav.Link>
           </Nav>
